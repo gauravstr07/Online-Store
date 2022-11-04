@@ -5,6 +5,8 @@ const bodyParser = require("body-parser");
 
 const errorController = require("./controllers/error");
 const sequelize = require("./util/database");
+const Product = require("./models/product");
+const User = require("./models/user");
 
 const app = express();
 const port = 5000;
@@ -23,13 +25,16 @@ app.use(shopRoutes);
 
 app.use(errorController.get404);
 
+Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
+User.hasMany(Product);
+
 sequelize
-  .sync()
-  .then((result) => {})
+  .sync({force: true})
+  .then((result) => {
+    app.listen(port, () => {
+      console.log(`server running on port: ${port}📡`);
+    });
+  })
   .catch((err) => {
     console.log(err);
   });
-
-app.listen(port, () => {
-  console.log(`server running on port: ${port}📡`);
-});
